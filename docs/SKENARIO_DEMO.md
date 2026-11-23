@@ -10,7 +10,7 @@
 | 03:15–04:30 | Klik **Optimalkan jadwal** | Hasil **2/2**, Nara di Dokumentasi dan Bima di Registrasi |
 | 04:30–05:30 | Batalkan **Bima** | Hasil sah **1/2**, ekspor CSV, lalu **Pulihkan semua** menjadi **2/2** |
 | 05:30–06:30 | Uji contoh 03 yang mustahil diisi semua | Tampilkan **2/4**, solusi parsial tidak dipaksakan |
-| 06:30–07:45 | Atur batas node `0` dan klik **Optimalkan jadwal** | Status **BELUM TERBUKTI OPTIMAL**, meski hasil tetap valid |
+| 06:30–07:45 | Atur batas node `0` dan klik **Optimalkan jadwal** | Status **Belum terbukti optimal**, meski hasil tetap valid |
 | 07:45–09:15 | Terangkan diagram alur: CSV → validasi → greedy/solver → verifier → GUI/ekspor | Tunjukkan `models.py`, `rules.py`, `baseline.py`, `solver.py`, `csv_io.py`, `ui.py` |
 | 09:15–10:15 | Jalankan tests dan jelaskan satu uji yang dahulu gagal (hanya jika benar ada) | Pengujian riil dan perbaikan di commit, tanpa mengarang sejarah |
 | 10:15–11:15 | Buka CSV hasil pembatalan, jelaskan keterbatasan dan status validasi pengguna | CSV hasil, contoh hasil, potensi batas search |

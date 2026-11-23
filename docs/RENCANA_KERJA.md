@@ -30,7 +30,7 @@ Jika **3 anggota**, gabungkan peran 4 pada anggota 1–3. Setiap orang harus bis
 - [ ] Ada pengguna/masalah nyata yang terkonfirmasi; jangan mengaku data demo sebagai data lapangan.
 - [ ] Solusi lolos `python -m unittest discover -s tests -v` di sedikitnya dua mesin.
 - [ ] Terlihat *failure case* greedy, alternatif solver, dan kegagalan solusi penuh.
-- [ ] Untuk batas node kecil, label **BELUM TERBUKTI OPTIMAL** muncul.
+- [ ] Untuk batas node kecil, label **Belum terbukti optimal** muncul.
 - [ ] Repo publik, semua anggota punya commit dengan pekerjaan nyata, pull request direview.
 - [ ] README relevan dengan hasil akhir; tidak memuat fitur yang belum berfungsi.
 - [ ] Video <= 15 menit; URL dapat dibuka publik.

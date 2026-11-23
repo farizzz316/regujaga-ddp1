@@ -36,6 +36,7 @@ class GuiTest(unittest.TestCase):
         self.assertIn("2/2", self.app.summary_var.get())
 
     def test_schedule_cancel_export_restore(self):
+        self.assertTrue(self.buttons["Pulihkan semua"].instate(["disabled"]))
         self.buttons["Jalankan Greedy"].invoke()
         self.assertIn("1/2", self.app.summary_var.get())
         self.buttons["Optimalkan jadwal"].invoke()
@@ -43,6 +44,9 @@ class GuiTest(unittest.TestCase):
         self.app.cancel_box.current(1)
         self.buttons["Batalkan kehadiran"].invoke()
         self.assertIn("1/2", self.app.summary_var.get())
+        self.assertEqual(self.app.percentage_label.cget("text"), "50%")
+        self.assertIn("1 relawan aktif", self.app.attendance_var.get())
+        self.assertIn("vacant", self.app.tree.item(self.app.tree.get_children()[1], "tags"))
         self.assertIn("P02 [S1] kosong", self.app.log.get("1.0", "end"))
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "jadwal.csv"
@@ -56,6 +60,7 @@ class GuiTest(unittest.TestCase):
                               for r in rows], [("P01", "V01", "Nara", "TERISI"), ("P02", "", "", "KOSONG")])
         self.buttons["Batalkan kehadiran"].invoke()
         self.assertEqual(self.app.current_result.coverage, 0)
+        self.assertTrue(self.buttons["Batalkan kehadiran"].instate(["disabled"]))
         self.buttons["Pulihkan semua"].invoke()
         self.assertEqual(self.app.current_result, self.app.initial_result)
 
@@ -80,7 +85,7 @@ class GuiTest(unittest.TestCase):
                        side_effect=[str(path), str(self.app.file_positions)]):
                 self.buttons["Impor data CSV"].invoke()
             self.assertEqual(self.app.current_result.nodes_explored, 0)
-            self.assertIn("BELUM TERBUKTI OPTIMAL", self.app.summary_var.get())
+            self.assertEqual(self.app.optimal_var.get(), "Belum terbukti optimal")
             self.buttons["Batalkan kehadiran"].invoke()
             self.assertEqual(self.app.cancelled, {"A - 1"})
             self.assertEqual(self.app.current_result.coverage, 0)

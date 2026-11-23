@@ -2,7 +2,7 @@
 
 **Penjadwalan relawan otomatis yang transparan, dapat diverifikasi, dan dapat diperbaiki setelah pembatalan.**
 
-![Tampilan ReguJaga](docs/preview.png)
+![Jadwal setelah satu pembatalan pada contoh 02. Lima dari enam posisi terisi, dan pos keamanan yang kosong ditandai di tabel.](docs/preview.png)
 
 Proyek kelompok Dasar-Dasar Pemrograman 1 (CSGE601020), Fakultas Ilmu Komputer, Universitas Indonesia — Semester Gasal 2026/2027.
 
