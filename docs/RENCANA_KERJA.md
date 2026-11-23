@@ -1,13 +1,13 @@
 # Rencana Implementasi dan Kontribusi Nyata (24 November – 10 Desember 2026)
 
-**Status:** Paket awal/regu prototipe telah disiapkan dengan bantuan AI. Belum ada GitHub publik, commit anggota, wawancara pengguna, atau video final pada saat paket dibuat. Tandai setiap kegiatan selesai hanya sesudah benar-benar dilaksanakan.
+**Status:** Repositori publik dan prototipe yang diuji tersedia. Pekerjaan teknis dibantu AI. Tugas anggota di bawah masih berupa usulan sampai ada nama penanggung jawab dan bukti pelaksanaan.
 
 ## Urutan pekerjaan
 
 | Periode | Target | Bukti yang disimpan |
 |---|---|---|
 | 24 Nov | Putuskan satu acara contoh, aturan penugasan, pembagian 3–4 orang | Notulen dan persetujuan kelompok |
-| 24–25 Nov | Buat repositori publik, undang seluruh anggota, jalankan program pada laptop masing-masing | Link GitHub, commit awal, tes lokal |
+| 24–25 Nov | Periksa akses repo publik, undang seluruh anggota, jalankan program pada laptop masing-masing | Link GitHub, commit awal, tes lokal |
 | 25–27 Nov | Temui satu koordinator acara, gali pembatalan dan aturan jadwal; isi formulir validasi | Data anonim, catatan dan persetujuan |
 | 27–30 Nov | Perbaiki input/validasi, batasan, dan penyebab posisi kosong sesuai temuan | PR asli, kasus uji baru |
 | 1–3 Des | Evaluasi solver vs greedy pada kasus nyata anonim dan data sintetik | Tabel perbandingan, hasil tes |
@@ -18,7 +18,7 @@
 
 ## Pekerjaan konkret agar commit anggota bukan formalitas
 
-- **Anggota 1 — Data/aturan:** Tambahkan minimal satu aturan yang disepakati koordinator dan tes terkait; revisi dokumentasi input.
+- **Anggota 1 — Data/aturan:** Konfirmasi aturan kepada koordinator, buat pasangan CSV anonim berizin, dan catat hasil pemeriksaan input. Ubah aturan jika hasil wawancara memang mengharuskannya.
 - **Anggota 2 — Algoritma:** Profiling dengan data lebih besar, pengukuran node/waktu, dan satu tes pembanding; terangkan *bound* serta MRV.
 - **Anggota 3 — GUI/UX:** Uji kemudahan impor, pembatalan, ekspor; perbaiki interaksi atau pesan kesalahan; tes lintas mesin.
 - **Anggota 4 — Kualitas/dokumentasi:** Tambahkan tes regresi, jalankan code review dan laporan pengujian pengguna; integrasikan demo video.

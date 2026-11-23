@@ -1,6 +1,7 @@
 """Smoke test CLI: akses tetap tersedia tanpa lingkungan GUI."""
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -27,3 +28,11 @@ class DemoCliTest(unittest.TestCase):
                            capture_output=True, text=True, timeout=10)
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("tidak ada", r.stderr)
+
+    def test_unwritable_export_reports_error(self):
+        with tempfile.TemporaryDirectory() as folder:
+            r = subprocess.run([sys.executable, str(ROOT / "demo.py"), "--export", folder],
+                               capture_output=True, text=True, timeout=10)
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("Ekspor gagal", r.stderr)
+            self.assertNotIn("Traceback", r.stderr)

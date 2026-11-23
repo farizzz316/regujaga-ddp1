@@ -6,8 +6,10 @@ if %errorlevel%==0 (
 ) else (
     python run.py
 )
-if errorlevel 1 (
+set "rc=%errorlevel%"
+if not "%rc%"=="0" (
     echo.
     echo ReguJaga gagal dibuka. Pastikan Python 3.10+ dan tkinter tersedia.
     pause
 )
+exit /b %rc%

@@ -61,20 +61,25 @@ if errorlevel 1 (
     git init
     if errorlevel 1 goto :failed
 )
-git add .
-if errorlevel 1 goto :failed
-git diff --cached --quiet
-if errorlevel 1 (
-    git commit -m "chore: initial ReguJaga MVP source code"
-    if errorlevel 1 goto :failed
-)
 git rev-parse --verify HEAD >nul 2>nul
 if errorlevel 1 (
-    echo ERROR: Belum ada commit lokal. Pastikan folder proyek berisi file.
-    goto :failed
+    git add .
+    if errorlevel 1 goto :failed
+    git commit -m "chore: initial ReguJaga MVP source code"
+    if errorlevel 1 goto :failed
+    git branch -M main
+    if errorlevel 1 goto :failed
+) else (
+    for /f "delims=" %%B in ('git branch --show-current') do set "CURRENT_BRANCH=%%B"
+    if not "!CURRENT_BRANCH!"=="main" (
+        echo Buka branch main untuk publikasi.
+        goto :failed
+    )
+    for /f "delims=" %%S in ('git status --porcelain') do (
+        echo Periksa dan commit perubahan Anda sebelum publikasi.
+        goto :failed
+    )
 )
-git branch -M main
-if errorlevel 1 goto :failed
 
 echo [4/6] Memeriksa repositori di GitHub...
 gh repo view farizzz316/regujaga-ddp1 >nul 2>nul
@@ -89,9 +94,12 @@ if errorlevel 1 (
         git remote add origin https://github.com/farizzz316/regujaga-ddp1.git
         if errorlevel 1 goto :failed
     )
-    for /f "usebackq delims=" %%R in (`git remote get-url origin`) do set "ORIGIN_URL=%%R"
-    echo(!ORIGIN_URL! | findstr /I /C:"farizzz316/regujaga-ddp1" >nul
-    if errorlevel 1 (
+    for /f "usebackq delims=" %%R in (`git remote get-url --push origin`) do set "ORIGIN_URL=%%R"
+    set "MATCH="
+    for %%R in (https://github.com/farizzz316/regujaga-ddp1 https://github.com/farizzz316/regujaga-ddp1.git git@github.com:farizzz316/regujaga-ddp1.git) do (
+        if /I "!ORIGIN_URL!"=="%%R" set "MATCH=1"
+    )
+    if not defined MATCH (
         echo ERROR: Remote origin tidak menunjuk ke repo ReguJaga yang dimaksud.
         echo Periksa dengan: git remote -v
         goto :failed

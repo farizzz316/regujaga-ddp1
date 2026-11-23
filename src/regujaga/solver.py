@@ -1,4 +1,4 @@
-"""Constraint solver: MRV, recursive backtracking, dan branch and bound.
+"""Constraint solver: MRV, backtracking, dan branch and bound.
 
 Objektif leksikografis:
   1. Maksimalkan jumlah posisi terisi.
@@ -8,19 +8,19 @@ Objektif leksikografis:
 Pencarian terhenti saat max_nodes dikunjungi; hasilnya valid tetapi tidak
 boleh disebut optimal. Search dimulai dengan incumbent greedy yang valid.
 """
+from collections.abc import Iterator
+
 from .baseline import greedy_schedule
 from .models import Position, ScheduleResult, Volunteer
-from .rules import can_assign, validate_data, verify_schedule
+from .rules import verify_schedule
 
 
 def solve_schedule(volunteers: list[Volunteer], positions: list[Position],
                    max_nodes: int = 100_000) -> ScheduleResult:
     if type(max_nodes) is not int or max_nodes < 0:
         raise ValueError("max_nodes harus bilangan bulat >= 0.")
-    validate_data(volunteers, positions)
     baseline = greedy_schedule(volunteers, positions)
     pmap = {p.id: p for p in positions}
-    vmap = {v.id: v for v in volunteers}
     ordered_ids = sorted(pmap)
     current: dict[str, str | None] = {}
     load = {v.id: 0 for v in volunteers}
@@ -28,7 +28,12 @@ def solve_schedule(volunteers: list[Volunteer], positions: list[Position],
     best = baseline.assignment.copy()
     best_coverage = baseline.coverage
     best_max_load = baseline.max_load
-    best_signature = tuple(best[pid] if best[pid] is not None else '\uffff' for pid in ordered_ids)
+
+    def signature(assignment: dict[str, str | None]) -> tuple:
+        # Pos terisi mendahului pos kosong untuk seluruh ID Unicode.
+        return tuple((assignment[pid] is None, assignment[pid]) for pid in ordered_ids)
+
+    best_signature = signature(best)
     nodes = 0
     limited = False
 
@@ -41,7 +46,7 @@ def solve_schedule(volunteers: list[Volunteer], positions: list[Position],
             key=lambda v: (load[v.id], v.id),
         )
 
-    def search(remaining: tuple[str, ...], covered: int) -> None:
+    def search(remaining: tuple[str, ...], covered: int) -> Iterator[tuple[tuple[str, ...], int]]:
         nonlocal nodes, limited, best, best_coverage, best_max_load, best_signature
         if nodes >= max_nodes:
             limited = True
@@ -51,14 +56,13 @@ def solve_schedule(volunteers: list[Volunteer], positions: list[Position],
             return  # Bound: bahkan semua sisa terisi tidak akan mengalahkan incumbent.
         if not remaining:
             peak = max(load.values(), default=0)
-            signature = tuple(current[pid] if current[pid] is not None else '\uffff' for pid in ordered_ids)
-            rank = (-covered, peak, signature)
+            rank = (-covered, peak, signature(current))
             best_rank = (-best_coverage, best_max_load, best_signature)
             if rank < best_rank:
                 best = current.copy()
                 best_coverage = covered
                 best_max_load = peak
-                best_signature = signature
+                best_signature = rank[2]
             return
 
         # MRV: posisi dengan kandidat tersedia paling sedikit diselesaikan dahulu.
@@ -70,17 +74,25 @@ def solve_schedule(volunteers: list[Volunteer], positions: list[Position],
             current[pid] = v.id
             load[v.id] += 1
             used_slots[v.id].add(p.slot)
-            search(rest, covered + 1)
+            yield rest, covered + 1
             used_slots[v.id].remove(p.slot)
             load[v.id] -= 1
             del current[pid]
-            if limited:
-                return
         current[pid] = None  # Cabang kosong selalu diperlukan untuk solusi parsial.
-        search(rest, covered)
+        yield rest, covered
         del current[pid]
 
-    search(tuple(ordered_ids), 0)
+    # Satu generator menyimpan pilihan dan langkah undo milik satu simpul.
+    # Stack ini menjalankan DFS tanpa menambah kedalaman panggilan Python.
+    stack = [search(tuple(ordered_ids), 0)]
+    while stack:
+        child = next(stack[-1], None)
+        if limited:
+            break
+        if child is None:
+            stack.pop()
+        else:
+            stack.append(search(*child))
     assert not verify_schedule(volunteers, positions, best), "Internal solver invalid."
     return ScheduleResult(
         assignment=best, coverage=best_coverage, total_positions=len(positions),

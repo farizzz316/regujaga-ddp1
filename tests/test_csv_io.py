@@ -1,5 +1,6 @@
 import csv
 from pathlib import Path
+from unittest.mock import patch
 import tempfile
 import unittest
 from _setup import *  # noqa: F403
@@ -27,6 +28,18 @@ class CsvIOTest(unittest.TestCase):
             self.assertEqual(len(rows), 2)
             self.assertTrue(all(r["status"] == "TERISI" for r in rows))
 
+    def test_failed_export_keeps_previous_file(self):
+        vs, ps = load_project(DEMO / "volunteers.csv", DEMO / "positions.csv")
+        result = solve_schedule(vs, ps)
+        with tempfile.TemporaryDirectory() as folder:
+            target = Path(folder) / "jadwal.csv"
+            target.write_bytes(b"jadwal lama")
+            with patch.object(Path, "replace", side_effect=PermissionError("terkunci")):
+                with self.assertRaises(PermissionError):
+                    export_schedule(target, ps, vs, result)
+            self.assertEqual(target.read_bytes(), b"jadwal lama")
+            self.assertEqual(list(target.parent.iterdir()), [target])
+
     def test_duplicate_ids_rejected(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "v.csv"
@@ -53,6 +66,13 @@ class CsvIOTest(unittest.TestCase):
             path = Path(folder) / "positions.csv"
             path.write_text("id,slot,role,location\nP1,S1,R,X,EXTRA\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "berlebih"):
+                load_positions(path)
+
+    def test_unclosed_csv_quote_rejected(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "p.csv"
+            path.write_text('id,slot,role,location\nP1,S,R,"Panggung', encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "CSV"):
                 load_positions(path)
 
     def test_utf8_bom(self):

@@ -9,5 +9,9 @@ description = "Penjadwalan relawan lokal dengan MRV dan backtracking"
 requires-python = ">=3.10"
 dependencies = []
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.setuptools]
+packages = ["regujaga", "regujaga.demo_data"]
+package-dir = {"" = "src", "regujaga.demo_data" = "data/demo"}
+
+[tool.setuptools.package-data]
+"regujaga.demo_data" = ["*/*.csv"]

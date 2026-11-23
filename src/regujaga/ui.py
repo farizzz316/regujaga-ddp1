@@ -9,8 +9,11 @@ from .models import Position, ScheduleResult, Volunteer
 from .rules import describe_vacancy, verify_schedule
 from .solver import solve_schedule
 
-ROOT = Path(__file__).resolve().parents[2]
-DEMO = ROOT / "data" / "demo" / "01_jebakan_greedy"
+PACKAGE = Path(__file__).resolve().parent
+DEMO_ROOT = PACKAGE / "demo_data"
+if not DEMO_ROOT.is_dir():
+    DEMO_ROOT = PACKAGE.parents[1] / "data" / "demo"
+DEMO = DEMO_ROOT / "01_jebakan_greedy"
 NAVY = "#152942"
 BLUE = "#1769AA"
 BG = "#F4F7FB"
@@ -115,10 +118,11 @@ class ReguJagaApp:
     def _load(self, volunteers_path: Path, positions_path: Path) -> None:
         try:
             volunteers, positions = load_project(volunteers_path, positions_path)
+            result = solve_schedule(volunteers, positions, max_nodes=self._limit())
             self.volunteers, self.positions = volunteers, positions
             self.file_volunteers, self.file_positions = volunteers_path, positions_path
             self.cancelled.clear()
-            self.initial_result = solve_schedule(self.volunteers, self.positions)
+            self.initial_result = result
             self.current_result = self.initial_result
             self._refresh_cancel_options()
             self._show(self.initial_result, "Data berhasil dimuat")
@@ -160,31 +164,35 @@ class ReguJagaApp:
 
     def optimize(self) -> None:
         try:
-            result = solve_schedule(self.active_volunteers(), self.positions, max_nodes=self._limit())
-            self.current_result = result
-            self._show(result, "Optimasi MRV + backtracking")
+            self._reschedule(self.cancelled)
         except ValueError as exc:
             messagebox.showerror("Kesalahan", str(exc))
+
+    def _reschedule(self, cancelled: set[str]) -> None:
+        active = [v for v in self.volunteers if v.id not in cancelled]
+        result = solve_schedule(active, self.positions, max_nodes=self._limit())
+        if cancelled != self.cancelled:
+            self.cancelled = cancelled
+            self._refresh_cancel_options()
+        self.current_result = result
+        self._show(result, "Optimasi MRV + backtracking")
 
     def cancel_volunteer(self) -> None:
-        choice = self.cancel_var.get()
-        if not choice:
+        index = self.cancel_box.current()
+        if index < 0:
             messagebox.showinfo("Informasi", "Tidak ada relawan aktif untuk dibatalkan.")
             return
+        vid = self.active_volunteers()[index].id
         try:
-            self._limit()
+            self._reschedule(self.cancelled | {vid})
         except ValueError as exc:
             messagebox.showerror("Kesalahan", str(exc))
-            return
-        vid = choice.split(" - ", 1)[0]
-        self.cancelled.add(vid)
-        self._refresh_cancel_options()
-        self.optimize()
 
     def reset_cancellations(self) -> None:
-        self.cancelled.clear()
-        self._refresh_cancel_options()
-        self.optimize()
+        try:
+            self._reschedule(set())
+        except ValueError as exc:
+            messagebox.showerror("Kesalahan", str(exc))
 
     def export_csv(self) -> None:
         if self.current_result is None:

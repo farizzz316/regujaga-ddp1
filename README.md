@@ -32,7 +32,7 @@ ReguJaga menyusun penempatan yang sah, menjelaskan posisi kosong, serta membandi
 
 ## Cara menjalankan (Windows / macOS / Linux)
 
-1. Download atau clone repo dan buka folder `ReguJaga-DDP1`.
+1. Clone [farizzz316/regujaga-ddp1](https://github.com/farizzz316/regujaga-ddp1) atau ekstrak **Code → Download ZIP**. Buka folder yang berisi `run.py`.
 2. Buka terminal pada folder tersebut.
 3. Jalankan:
 
@@ -55,7 +55,9 @@ python -m pip install -e .
 python -m regujaga.app
 ```
 
-## Menjalankan dari Windows tanpa mengetik perintah
+## Menjalankan dari Windows
+
+Langkah pemasangan Python, pemeriksaan Tkinter, dan cara membuka CSV di Excel tersedia di [panduan Windows](docs/INSTALASI_WINDOWS.md).
 
 - Klik dua kali **`JALANKAN_WINDOWS.bat`** untuk membuka aplikasi (Python 3.10+ harus terpasang).
 - Klik dua kali **`UJI_WINDOWS.bat`** untuk menjalankan seluruh pengujian dan melihat hasilnya.
@@ -106,11 +108,11 @@ Tanda `;` memisahkan banyak peran/slot dalam **satu sel CSV**. Nama peran dan sl
 1. Validasi data dan bentuk posisi/relawan sebagai objek Python.
 2. Bangun solusi awal menggunakan greedy. Hasil ini dipakai juga sebagai *incumbent* untuk menjaga solusi parsial valid bila pencarian dibatasi.
 3. Pada tiap langkah, pilih posisi **MRV (Minimum Remaining Values)**: posisi yang saat ini punya kandidat sah paling sedikit.
-4. Coba relawan sah, diurutkan berdasarkan beban sementara paling rendah dan ID stabil; jika belum ada solusi penuh, izinkan cabang posisi kosong.
+4. Coba relawan sah, diurutkan berdasarkan beban sementara paling rendah dan ID stabil; telusuri juga cabang posisi kosong.
 5. Batalkan pilihan sementara (*backtrack*) setelah menelusuri cabang.
-6. **Bound:** pangkas jika jumlah posisi saat ini yang telah terisi ditambah semua posisi tersisa tidak dapat mengalahkan cakupan terbaik.
+6. **Bound:** pangkas jika jumlah posisi saat ini yang telah terisi ditambah semua posisi tersisa lebih kecil dari cakupan terbaik.
 7. Pilih solusi berdasarkan prioritas: **cakupan maksimum → beban maksimum minimum → ID relawan stabil**.
-8. Bila jumlah node mencapai batas, hentikan dan laporkan hasil terbaik ditemukan sebagai **BELUM TERBUKTI OPTIMAL**.
+8. Bila masih ada node yang perlu dikunjungi setelah anggaran habis, hentikan dan laporkan hasil terbaik ditemukan sebagai **BELUM TERBUKTI OPTIMAL**.
 
 > Klaim optimal hanya berlaku untuk **model dan data yang diberikan**, bukan seluruh persoalan penjadwalan dunia nyata. Pencarian eksponensial; sekitar `(jumlah relawan + 1) ^ jumlah posisi` kemungkinan kasar sebelum pruning.
 
@@ -135,8 +137,6 @@ ReguJaga-DDP1/
 ├── data/demo/              # 3 skenario sintetik
 ├── tests/                  # Pengujian unittest
 ├── docs/                   # Kontrak, demo, riset pengguna, GitHub
-├── .github/workflows/      # CI saat repo dipublikasikan
-├── .github/ISSUE_TEMPLATE/ # Formulir pekerjaan kelompok
 ├── CONTRIBUTING.md         # Ketentuan PR/commit asli
 └── .gitignore
 ```
@@ -152,7 +152,7 @@ Perintah `python -m unittest discover -s tests -v` mencakup:
 - *node budget* kecil dan label solusi tidak optimal;
 - pemeriksaan solver dengan **enumerasi exhaustive independen** untuk puluhan kasus kecil acak ber-*seed* tetap.
 
-Hasil pengujian pada lingkungan penyusunan: **31 unit test lulus**. UI telah diuji dengan skenario impor otomatis, pembatalan, dan pemulihan. Setiap anggota tetap harus menjalankan ulang pada komputernya.
+Di Linux dengan layar virtual X11, 39 pengujian lulus, termasuk tiga uji tombol Tk. Pengujian mencakup pembatalan sampai semua relawan nonaktif, pemulihan, serta pembacaan kembali CSV. Detail lingkungan dan perintah tersedia di [hasil pengujian](docs/PENGUJIAN.md).
 
 ## Keterbatasan
 
@@ -167,7 +167,7 @@ Hasil pengujian pada lingkungan penyusunan: **31 unit test lulus**. UI telah diu
 
 Setiap anggota kelompok **harus berkontribusi sungguhan**. Awali pembagian dengan [rencana kerja](docs/RENCANA_KERJA.md), lalu ikuti [CONTRIBUTING](CONTRIBUTING.md). Jangan membuat commit palsu, memakai identitas anggota lain, atau melakukan squash seluruh kontribusi ke satu akun. Rekomendasi pembagian dan perintah tersedia di [Panduan GitHub](docs/PANDUAN_GITHUB.md).
 
-> Ketentuan resmi DDP1: repositori **publik**, video YouTube **maksimal 15 menit**, kontribusi aktif seluruh anggota, tenggat **10 Desember 2026 23.59 WIB**. Sesuaikan rancangan dengan masukan asdos.
+> Menurut catatan proyek awal, target penyerahan mencakup repositori **publik**, video YouTube **maksimal 15 menit**, kontribusi aktif seluruh anggota, tenggat **10 Desember 2026 23.59 WIB**. Cocokkan tenggat dan ketentuan akhir dengan pengumuman dosen/asdos.
 
 ## Validasi manfaat di lapangan
 
@@ -181,15 +181,3 @@ Sebelum mengklaim aplikasi sudah menyelesaikan masalah nyata, lakukan wawancara/
 - Python `tkinter`: https://docs.python.org/3/library/tkinter.html
 - Python `unittest`: https://docs.python.org/3/library/unittest.html
 - GitHub Docs: https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository
-
-## Membuat repositori GitHub publik (akun farizzz316)
-
-**Repositori GitHub tidak otomatis ada hanya karena folder ini disiapkan.** Publikasikan secara nyata dengan skrip berikut, dijalankan oleh pemilik akun GitHub.
-
-1. Pasang Git (`https://git-scm.com/download/win`) dan GitHub CLI (`https://cli.github.com/`); Windows dapat memakai `winget install --id GitHub.cli --exact`.
-2. Siapkan nama dan email commit yang benar menggunakan `git config --global user.name "Nama Asli"` dan `git config --global user.email "email-akun-github"`. Pakai alamat *noreply* GitHub jika tidak ingin mengekspos email pribadi.
-3. **Windows:** klik dua kali `TERBITKAN_GITHUB_WINDOWS.bat`. **macOS/Linux:** jalankan `bash TERBITKAN_GITHUB_MAC_LINUX.sh`.
-4. Login GitHub melalui browser jika diminta. Skrip memeriksa bahwa akun yang login adalah `farizzz316` sebelum membuat repositori publik `regujaga-ddp1` dan mengunggah commit awal.
-5. Pastikan hasilnya mencantumkan `PUBLIC` dan buka `https://github.com/farizzz316/regujaga-ddp1`. Undang anggota kelompok di **Settings → Collaborators**. Setiap anggota wajib berkontribusi secara nyata; skrip ini hanya membuat commit awal dari komputer pemilik proyek.
-
-Jika repositori sudah ada, skrip akan mengunggah commit lokal ke sana, tanpa mengganti alamat `origin` yang tidak sesuai.

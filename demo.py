@@ -62,8 +62,11 @@ def main(argv=None):
     errors = verify_schedule(volunteers, positions, solved.assignment)
     print("Verifikasi:", "LULUS (0 pelanggaran)" if not errors else "GAGAL: " + "; ".join(errors))
     if args.export:
-        args.export.parent.mkdir(parents=True, exist_ok=True)
-        export_schedule(args.export, positions, volunteers, solved)
+        try:
+            args.export.parent.mkdir(parents=True, exist_ok=True)
+            export_schedule(args.export, positions, volunteers, solved)
+        except (OSError, ValueError) as exc:
+            parser.exit(1, f"Ekspor gagal: {exc}\n")
         print("Ekspor CSV:", args.export)
     return 0 if not errors else 1
 

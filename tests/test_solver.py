@@ -17,18 +17,26 @@ def make_trap():
 
 
 def brute_score(volunteers, positions):
-    """Oracle kecil: enumerasi semua assignment dan gunakan verifier, bukan fungsi solver."""
-    best = (-1, float("inf"))
-    ids = [None] + [v.id for v in volunteers]
-    for choice in itertools.product(ids, repeat=len(positions)):
-        assignment = dict(zip((p.id for p in positions), choice))
-        if verify_schedule(volunteers, positions, assignment):
+    """Enumerasi independen atas seluruh penempatan, termasuk posisi kosong."""
+    ordered = sorted(positions, key=lambda p: p.id)
+    best = None
+    for choice in itertools.product([*volunteers, None], repeat=len(ordered)):
+        taken = [(p, v) for p, v in zip(ordered, choice) if v is not None]
+        if any(p.slot not in v.available_slots or p.role not in v.roles for p, v in taken):
             continue
-        coverage = sum(x is not None for x in choice)
-        load = max((choice.count(v.id) for v in volunteers), default=0)
-        if coverage > best[0] or (coverage == best[0] and load < best[1]):
-            best = (coverage, load)
-    return best
+        if len({(p.slot, v.id) for p, v in taken}) != len(taken):
+            continue
+        if any(choice.count(v) > v.max_tasks for v in volunteers):
+            continue
+        peak = max((choice.count(v) for v in volunteers), default=0)
+        # Indeks relawan mengikuti urutan ID. Indeks terakhir berarti kosong.
+        ids = sorted(v.id for v in volunteers)
+        indices = tuple(len(ids) if v is None else ids.index(v.id) for v in choice)
+        rank = (-len(taken), peak, indices)
+        if best is None or rank < best:
+            best = rank
+            assignment = {p.id: (v.id if v else None) for p, v in zip(ordered, choice)}
+    return -best[0], best[1], assignment
 
 
 class SolverTest(unittest.TestCase):
@@ -84,6 +92,18 @@ class SolverTest(unittest.TestCase):
         volunteers, positions = make_trap()
         self.assertEqual(solve_schedule(volunteers, positions), solve_schedule(volunteers, positions))
 
+    def test_unicode_id_precedes_a_vacancy(self):
+        volunteers = [Volunteer("😀", "Ayu", frozenset({"R"}), frozenset({"S"}), 1)]
+        positions = [Position(pid, "S", "R", "Pos") for pid in ("P2", "P1")]
+        result = solve_schedule(volunteers, positions)
+        self.assertEqual(result.assignment, {"P1": "😀", "P2": None})
+
+    def test_deep_search(self):
+        positions = [Position(str(i), "S", "R", "Pos") for i in range(1100)]
+        result = solve_schedule([], positions)
+        self.assertTrue(result.is_optimal)
+        self.assertEqual(result.assignment, dict.fromkeys(p.id for p in positions))
+
     def test_bad_node_limit(self):
         volunteers, positions = make_trap()
         with self.assertRaises(ValueError):
@@ -104,7 +124,7 @@ class SolverTest(unittest.TestCase):
             result = solve_schedule(people, positions, max_nodes=50000)
             score = brute_score(people, positions)
             self.assertTrue(result.is_optimal)
-            self.assertEqual((result.coverage, result.max_load), score)
+            self.assertEqual((result.coverage, result.max_load, result.assignment), score)
             self.assertEqual(verify_schedule(people, positions, result.assignment), [])
 
 

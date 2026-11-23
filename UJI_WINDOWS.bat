@@ -6,5 +6,7 @@ if %errorlevel%==0 (
 ) else (
     python -m unittest discover -s tests -v
 )
+set "rc=%errorlevel%"
 echo.
 pause
+exit /b %rc%

@@ -80,4 +80,4 @@ def describe_vacancy(position: Position, volunteers: list[Volunteer],
     possible = [v for v in basic if can_assign(v, position, assignment, pmap)]
     if possible:
         return "Ada kandidat sah; posisi dibiarkan kosong dalam hasil parsial/terbatas."
-    return "Kandidat sedang mengisi slot lain atau mencapai batas tugas pada jadwal ini."
+    return "Kandidat sudah bertugas pada slot yang sama atau mencapai batas tugas pada jadwal ini."

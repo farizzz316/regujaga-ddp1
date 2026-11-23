@@ -8,7 +8,7 @@ Bacalah berurutan. Materi wajib DDP1: variabel, pilihan, perulangan, fungsi, col
 | `csv_io.py` | I/O | `csv.DictReader`, validasi header, `utf-8-sig`, `csv.writer` |
 | `rules.py` | Pemeriksaan aturan | `is_eligible`, `can_assign`, `verify_schedule`, larangan dua tugas simultan |
 | `baseline.py` | Metode pembanding | Greedy memakai urutan data, tidak memperbaiki keputusan awal |
-| `solver.py` | Optimasi | DFS rekursif, MRV dinamis, cabang kosong, undo, batas cakupan, status limit node |
+| `solver.py` | Optimasi | DFS dengan stack dan generator, MRV dinamis, cabang kosong, undo, batas cakupan, status limit node |
 | `ui.py` | Pengalaman pengguna | Tombol, event handler, data aktif vs batal, pemanggilan solver dan verifier |
 | `app.py` dan `run.py` | Startup | Memulai Tkinter dari folder proyek |
 | `demo.py` | Demo tanpa jendela | `argparse`, pilihan skenario, pembatalan dan ekspor |
