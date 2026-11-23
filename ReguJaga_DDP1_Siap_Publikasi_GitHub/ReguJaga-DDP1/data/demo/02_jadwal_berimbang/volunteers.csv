@@ -1,0 +1,5 @@
+id,name,roles,available_slots,max_tasks
+V01,Ani,Registrasi;Logistik,S1;S2;S3,3
+V02,Bayu,Registrasi;Logistik,S1;S2;S3,3
+V03,Citra,Dokumentasi,S1;S2;S3,2
+V04,Dodi,Keamanan,S1;S2;S3,2
